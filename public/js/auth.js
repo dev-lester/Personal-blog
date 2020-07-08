@@ -1,3 +1,18 @@
+// get data from db 
+
+// listen to auth status changes
+auth.onAuthStateChanged(user => {
+    if (user) {
+        db.collection('post').get().then(snapshot => {
+            setupPost(snapshot.docs);
+            setupUI(user);
+        });
+    } else {
+        setupUI();
+        setupPost([]);
+    }
+});
+
 // signup
 const signupForm = document.querySelector('#signup-form');
 const logout = document.querySelector('#logout');
@@ -25,9 +40,7 @@ signupForm.addEventListener('submit', (e) => {
 
 logout.addEventListener('click', (e) => {
     e.preventDefault();
-    auth.signOut().then(() => {
-        console.log('user logged out!');
-    });
+    auth.signOut();
 });
 // login
 
@@ -37,7 +50,6 @@ loginForm.addEventListener('submit', (e) => {
     const password = loginForm['login-password'].value;
     // login existing user
     auth.signInWithEmailAndPassword(email, password).then((cred) => {
-        console.log(`welcome ${email}`);
         const modal = document.querySelector('#modal-login');
         M.Modal.getInstance(modal).close();
         loginForm.reset();
